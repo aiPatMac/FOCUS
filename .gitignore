@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+
+# generated at runtime, not checked in
+data/datasets/
+experiments_output/
+.venv/

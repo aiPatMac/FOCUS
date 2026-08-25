@@ -1,0 +1,50 @@
+# Default dataset-experiment configuration.
+#
+# Selects the dataset transfer protocols and seeds; models are supplied in code
+# (e.g. from a notebook) so the dataset protocol stays fixed across models.
+#
+# Load with:  ExperimentConfig.from_yaml("configs/experiment/transfer_default.yaml")
+
+name: transfer_default
+
+# Embedding backbones to sweep (each must have {ds}/embeddings/{config}__cls.npy).
+# Every (config x model x setting x seed) is logged; averages are saved per
+# architecture / model / dataset / family automatically.
+configs:
+  - dinov2_vits__anyup
+  - dinov2_vits__featup
+  - dinov2_vits__loftup
+  - dinov2_vits__uplift
+  - dinov3_vits__anyup
+  - dinov3_splus__uplift
+
+tau: 0.25                         # fixed HDR/PDR decision threshold
+seeds: [42, 123, 7, 0, 99]        # 5 seeds
+val_frac: 0.15                    # early-stop holdout carved out of each train pool
+report_val_tau: true              # also report PDR at a holdout-validated tau
+tau_grid: [0.04, 0.08, 0.12, 0.16, 0.20, 0.24, 0.28, 0.32, 0.36, 0.40, 0.44, 0.48, 0.52, 0.56, 0.60]
+
+datasets:
+  real: [moon_ce3, moon_ce4]      # real lunar (Chang'e)
+  sim1: [lusnar]                  # simulated lunar
+  sim2: [luna_polaris]            # real lunar-analogue
+
+# Four standard families are reported by default, each with a family-level
+# average via ResultStore.family_leaderboard(): in_domain, pooled (settings
+# named pooled:real / pooled:all / pooled:sim), sim_to_real (settings named
+# sim_to_real:<dataset> / sim_to_real:both, using the actual dataset name(s)
+# rather than the sim1/sim2 config labels below), and leave_one_out. The flags
+# here are the internal toggle names (kept for backward compatibility); see
+# `focus.experiments.settings.build_settings` for the generated
+# ExperimentSetting.name strings actually reported in results.csv.
+families:
+  in_domain: true                 # each ds: train -> val
+  real_pooled: true               # real train -> real val               (setting "pooled:real")
+  all_pooled: true                # all train -> all val                 (setting "pooled:all")
+  sim_pooled: true                # sim1+sim2 train -> sim1+sim2 val     (setting "pooled:sim")
+  sim_to_real: true               # sim1/sim2/both -> real (headline transfer)
+  reverse_real_to_sim: false      # real -> sim1, real -> sim2
+  cross_sim: false                # sim1 -> sim2, sim2 -> sim1
+  leave_one_out: true             # train on all-but-one -> held-out ds
+
+output_dir: experiments_output    # results land in <output_dir>/<name>/

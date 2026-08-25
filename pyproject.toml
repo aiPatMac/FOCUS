@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "focus-trav"
+version = "0.1.0"
+description = "FOCUS: Fused Ordinal-CORN with Uncertainty-weighted Scoring for lunar terrain traversability estimation"
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.0",
+    "omegaconf>=2.3",
+    "numpy",
+    "pandas",
+    "Pillow",
+    "tqdm",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+]
+# ExperimentRunner.run_parallel() and ResultStore.wilcoxon_vs() import these
+# lazily; not needed for a single sequential run() or the CLI in train.py.
+stats = ["scipy", "joblib"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
